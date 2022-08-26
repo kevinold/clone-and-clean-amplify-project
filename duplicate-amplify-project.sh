@@ -55,8 +55,8 @@ find . -name "*$existingProjectDate*" -execdir bash -c "mv \$0 \${0/$existingPro
 echo "Removing project specific /amplify files"
 rm -rf amplify/backend/amplify-meta.json
 rm -rf amplify/team-provider-info.json
-rm -rf amplify/.config/project-config.json
-rm -rf amplify/.config/local-*.json
+#rm -rf amplify/.config/project-config.json
+#rm -rf amplify/.config/local-.json
 rm -rf amplify/**/dist
 rm -rf amplify/**/build
 rm -rf amplify/backend/.temp
@@ -65,8 +65,43 @@ rm -rf src/aws-exports*
 echo "Project cloned and cleaned"
 
 # amplify init the new project
+old_ifs="$IFS"
+IFS='|'
 echo "Running amplify init"
-amplify init --y
+
+REACTCONFIG="{\
+\"SourceDir\":\"src\",\
+\"DistributionDir\":\"build\",\
+\"BuildCommand\":\"npm run-script build\",\
+\"StartCommand\":\"npm run-script start\"\
+}"
+AWSCLOUDFORMATIONCONFIG="{\
+\"configLevel\":\"project\",\
+\"useProfile\":true,\
+\"profileName\":\"default\",\
+\"region\":\"us-east-1\"\
+}"
+AMPLIFY="{\
+\"projectName\":\"${shortProjectName}amplifyc\",\
+\"envName\":\"dev\",\
+\"defaultEditor\":\"code\"\
+}"
+FRONTEND="{\
+\"frontend\":\"javascript\",\
+\"framework\":\"react\",\
+\"config\":$REACTCONFIG\
+}"
+PROVIDERS="{\
+\"awscloudformation\":$AWSCLOUDFORMATIONCONFIG\
+}"
+
+amplify init \
+--amplify $AMPLIFY \
+--frontend $FRONTEND \
+--providers $PROVIDERS \
+--yes
+
+IFS=old_ifs
 
 # initialize git and check in new files
 echo "Initialize git and initial commit"
