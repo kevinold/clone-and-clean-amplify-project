@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
 if [ -z "$1" ]; then
-    echo "Must supply existing project dir"
-    exit 2;
+  echo "Must supply existing Amplify project directory"
+  exit 2;
+fi
+
+if [[ $1 == *".."* ]]; then
+  echo "No relative paths to Amplify project."
+  echo "Run this command from the directory above the Amplify project directory."
+  exit 2;
 fi
 
 newProjectDate=$(date +"%Y%m%d%H%M")
