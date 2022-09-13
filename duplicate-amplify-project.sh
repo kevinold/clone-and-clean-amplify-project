@@ -11,6 +11,8 @@ if [[ $1 == *".."* ]]; then
   exit 2;
 fi
 
+awsRegion=$2 || 'us-east-1'
+
 newProjectDate=$(date +"%Y%m%d%H%M")
 existingProjectDir=$1
 existingProjectDirSuffix=$(echo $existingProjectDir | sed 's/^[0-9]*-//')
@@ -22,9 +24,14 @@ cp -R $existingProjectDir $newProjectDir
 
 cd $newProjectDir
 
+rm -rf node_modules
+
 # get projectName from amplify/.config/project-config.json
 existingProjectName=$(cat amplify/.config/project-config.json | jq -r '.projectName')
 echo $existingProjectName
+
+existingAwsRegion=$(cat amplify/team-provider-info.json | jq -r '.dev.awscloudformation.Region')
+echo $existingAwsRegion
 
 # get existing project date from existingProjectName
 existingProjectDate=$(echo $existingProjectName | perl -lane 'print m/(\d{12})/')
@@ -47,6 +54,10 @@ echo "Migrating /amplify files to $newProjectDate ..."
 # replace existing project name with new project name in /amplify filenames and file contents
 perl -pi -e "s/$existingProjectName/$newProjectName/g" $(find amplify -type f) 
 
+# replace existing project aws region with new project region in /amplify filenames and file contents
+perl -pi -e "s/$existingAwsRegion/$awsRegion/g" $(find amplify -type f) 
+
+
 # rename directories with existing project date to the new project date
 # e.g. find . -name '*202208231425*' -execdir bash -c 'git mv $0 ${0/202208231425/202208251546}' {} \;
 find . -name "*$existingProjectDate*" -execdir bash -c "mv \$0 \${0/$existingProjectDate/$newProjectDate}" {} \;
@@ -64,6 +75,8 @@ rm -rf src/aws-exports*
 
 echo "Project cloned and cleaned"
 
+npm install
+
 # amplify init the new project
 old_ifs="$IFS"
 IFS='|'
@@ -79,7 +92,7 @@ AWSCLOUDFORMATIONCONFIG="{\
 \"configLevel\":\"project\",\
 \"useProfile\":true,\
 \"profileName\":\"default\",\
-\"region\":\"us-east-1\"\
+\"region\":\"${awsRegion}\"\
 }"
 AMPLIFY="{\
 \"projectName\":\"${shortProjectName}amplifyc\",\
