@@ -54,8 +54,10 @@ echo "Migrating /amplify files to $newProjectDate ..."
 # replace existing project name with new project name in /amplify filenames and file contents
 perl -pi -e "s/$existingProjectName/$newProjectName/g" $(find amplify -type f) 
 
+# regex escape region us-west-2 -> us\-west-2
+existingAwsRegionEsc=$(echo "$existingAwsRegion" | sed 's/[]\\.$*{}|+?()[^-]/\\&/g')
 # replace existing project aws region with new project region in /amplify filenames and file contents
-perl -pi -e "s/$existingAwsRegion/$awsRegion/g" $(find amplify -type f) 
+perl -pi -e "s/$existingAwsRegionEsc/$awsRegion/g" $(find amplify -type f) 
 
 
 # rename directories with existing project date to the new project date
