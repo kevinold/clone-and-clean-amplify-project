@@ -64,6 +64,9 @@ perl -pi -e "s/$existingProjectName/$newProjectName/g" $(find amplify -type f)
 # e.g. find . -name '*202208231425*' -execdir bash -c 'git mv $0 ${0/202208231425/202208251546}' {} \;
 find . -name "*$existingProjectDate*" -execdir bash -c "mv \$0 \${0/$existingProjectDate/$newProjectDate}" {} \;
 
+# rename directories with existing project name to the new project date
+find . -name "*$existingProjectName*" -execdir bash -c "mv \$0 \${0/$existingProjectName/$newProjectDate}" {} \;
+
 # remove project specific user/dynamically generated amplify files
 echo "Removing project specific /amplify files"
 rm -rf amplify/backend/amplify-meta.json
