@@ -125,7 +125,7 @@ IFS=old_ifs
 echo "Initialize git and initial commit"
 git init
 git add .
-git ci -am "initial commit $newProjectName"
+git commit -am "initial commit $newProjectName"
 
 echo ""
 echo ""
